@@ -1,0 +1,148 @@
+/* =========================
+   GLOBAL
+========================= */
+
+.stApp {
+    background-color: #343541;
+}
+
+/* Hide Streamlit UI */
+
+header {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+#MainMenu {
+    visibility: hidden;
+}
+
+/* =========================
+   MAIN CONTENT
+========================= */
+
+.block-container {
+    max-width: 100% !important;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 1rem;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+section[data-testid="stSidebar"] {
+    background-color: #202123;
+    border-right: 1px solid #2f2f2f;
+    width: 320px !important;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.stButton > button {
+    background-color: #343541;
+    color: white;
+    border: 1px solid #565869;
+    border-radius: 10px;
+    height: 50px;
+    width: 100%;
+    font-weight: 600;
+}
+
+.stButton > button:hover {
+    background-color: #40414f;
+}
+
+/* =========================
+   HISTORY
+========================= */
+
+.history-title {
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+/* =========================
+   WELCOME
+========================= */
+
+h1 {
+    color: white !important;
+    font-size: 64px !important;
+    font-weight: 700 !important;
+    text-align: center;
+}
+
+[data-testid="stCaptionContainer"] {
+    color: #b4b4b4 !important;
+    font-size: 18px !important;
+    text-align: center;
+}
+
+/* =========================
+   CHAT MESSAGES
+========================= */
+
+div[data-testid="stChatMessage"] {
+    background: transparent !important;
+    color: white !important;
+}
+
+/* THIS IS THE IMPORTANT FIX */
+
+div[data-testid="stChatMessage"] p,
+div[data-testid="stChatMessage"] div,
+div[data-testid="stChatMessage"] span,
+div[data-testid="stChatMessage"] li {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+/* User avatar */
+
+[data-testid="chatAvatarIcon-user"] {
+    background-color: #ef4444;
+}
+
+/* Assistant avatar */
+
+[data-testid="chatAvatarIcon-assistant"] {
+    background-color: #f59e0b;
+}
+
+/* =========================
+   CHAT INPUT
+========================= */
+
+[data-testid="stChatInput"] {
+    margin-top: 20px;
+}
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 10px;
+}
+
+/* Force all chat text to white */
+
+[data-testid="stChatMessage"] * {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
