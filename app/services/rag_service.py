@@ -1,6 +1,6 @@
-from app.services.gemini_service import GeminiService
 from app.services.question_rewriter_service import QuestionRewriterService
-from app.tools.tool_router import ToolRouter
+from app.services.react_executor_service import ReActExecutorService
+
 
 class RAGService:
 
@@ -17,52 +17,16 @@ class RAGService:
         print("\nREWRITTEN QUESTION")
         print(rewritten_question)
 
-        documents = ToolRouter.route(
-            rewritten_question
-        )
-
-        knowledge_context = "\n".join(
-            documents
-        )
-
-        print("\nRETRIEVED DOCUMENTS")
-
-        for doc in documents:
-            print(doc)
-
-        context = f"""
-                CONTEXT:
-                {knowledge_context}
-                """
-
-        prompt = f"""
-     You are a helpful AI assistant.
-
-    Answer the question using ONLY the context below.
-
-    Context:
-
-    {context}
-
-    Question:
-
-    {rewritten_question}
-
-    Answer:
-    """
-
-        print("\nFINAL PROMPT")
-        print(prompt)
-
-        response = (
-            GeminiService.generate(prompt)
+        react_result = (
+            ReActExecutorService.execute(
+                rewritten_question
+            )
         )
 
         return {
             "rewritten_question": rewritten_question,
-            "retrieved_documents": documents,
-            "answer": response
+            "thought": react_result["thought"],
+            "action": react_result["action"],
+            "observation": react_result["observation"],
+            "answer": react_result["answer"]
         }
-
-
-

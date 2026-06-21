@@ -1,148 +1,63 @@
-/* =========================
-   GLOBAL
-========================= */
+/* Remove default Streamlit branding */
+#MainMenu, header, footer { visibility: hidden; }
 
-.stApp {
-    background-color: #343541;
+/* Sidebar appearance */
+[data-testid="stSidebar"] {
+    background-color: #f7f7f8;
+    border-right: 1px solid #e5e7eb;
 }
 
-/* Hide Streamlit UI */
-
-header {
-    visibility: hidden;
+/* Chat bubble styling */
+[data-testid="stChatMessage"][data-author="user"] {
+    background-color: #e8f5e9;
+    border-radius: 12px;
 }
 
-footer {
-    visibility: hidden;
+[data-testid="stChatMessage"][data-author="assistant"] {
+    background-color: #f9f9f9;
+    border-radius: 12px;
 }
 
-#MainMenu {
-    visibility: hidden;
-}
-
-/* =========================
-   MAIN CONTENT
-========================= */
-
-.block-container {
-    max-width: 100% !important;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    padding-top: 1rem;
-}
-
-/* =========================
-   SIDEBAR
-========================= */
-
-section[data-testid="stSidebar"] {
-    background-color: #202123;
-    border-right: 1px solid #2f2f2f;
-    width: 320px !important;
-}
-
-/* =========================
-   BUTTONS
-========================= */
-
+/* Sidebar button hover effect */
 .stButton > button {
-    background-color: #343541;
-    color: white;
-    border: 1px solid #565869;
-    border-radius: 10px;
-    height: 50px;
-    width: 100%;
-    font-weight: 600;
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-weight: 500;
 }
 
 .stButton > button:hover {
-    background-color: #40414f;
-}
-
-/* =========================
-   HISTORY
-========================= */
-
-.history-title {
+    background-color: #10a37f;
     color: white;
-    font-size: 18px;
-    font-weight: 700;
-    margin-top: 10px;
-    margin-bottom: 15px;
+    border-color: #10a37f;
 }
 
-/* =========================
-   WELCOME
-========================= */
+/* --- Force Chat Alignment --- */
 
-h1 {
-    color: white !important;
-    font-size: 64px !important;
-    font-weight: 700 !important;
-    text-align: center;
+/* User messages on the right */
+[data-testid="stChatMessage"][data-author="user"] {
+    flex-direction: row-reverse;
 }
 
-[data-testid="stCaptionContainer"] {
-    color: #b4b4b4 !important;
-    font-size: 18px !important;
-    text-align: center;
+/* Assistant messages on the left */
+[data-testid="stChatMessage"][data-author="assistant"] {
+    flex-direction: row;
 }
 
-/* =========================
-   CHAT MESSAGES
-========================= */
-
-div[data-testid="stChatMessage"] {
-    background: transparent !important;
-    color: white !important;
+/* Optional: Ensure the text inside doesn't stretch weirdly */
+[data-testid="stChatMessage"] div[data-testid="stMarkdownContainer"] {
+    max-width: 80%;
 }
 
-/* THIS IS THE IMPORTANT FIX */
-
-div[data-testid="stChatMessage"] p,
-div[data-testid="stChatMessage"] div,
-div[data-testid="stChatMessage"] span,
-div[data-testid="stChatMessage"] li {
-    color: #ffffff !important;
-    opacity: 1 !important;
+/* Force spinner and text to stay on one line */
+.stSpinner > div {
+    display: flex !important;
+    align-items: center !important;
+    flex-direction: row !important;
+    gap: 10px !important;
 }
 
-/* User avatar */
-
-[data-testid="chatAvatarIcon-user"] {
-    background-color: #ef4444;
-}
-
-/* Assistant avatar */
-
-[data-testid="chatAvatarIcon-assistant"] {
-    background-color: #f59e0b;
-}
-
-/* =========================
-   CHAT INPUT
-========================= */
-
-[data-testid="stChatInput"] {
-    margin-top: 20px;
-}
-
-/* =========================
-   SCROLLBAR
-========================= */
-
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #666;
-    border-radius: 10px;
-}
-
-/* Force all chat text to white */
-
-[data-testid="stChatMessage"] * {
-    color: #ffffff !important;
-    opacity: 1 !important;
+/* Ensure the text doesn't break into a new line */
+.stSpinner > div > div {
+    white-space: nowrap !important;
 }
