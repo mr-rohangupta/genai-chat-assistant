@@ -1,5 +1,3 @@
-from unittest import result
-
 from app.models.agent_state import AgentState
 from app.tools.memory_tool import MemoryTool
 from app.tools.pdf_tool import PdfTool
@@ -12,11 +10,26 @@ class StepExecutorService:
             step: str
     ):
         """
-               Executes one step from a plan.
+        Executes a single planner step.
 
-               Updates AgentState with
-               observations and progress.
-               """
+        Responsibilities
+        ----------------
+        1. Identify the tool associated
+           with the planner step.
+
+        2. Execute the appropriate tool.
+
+        3. Store tool output inside
+           AgentState.observation.
+
+        4. Track execution progress using:
+
+           - current_step
+           - completed_steps
+
+        This service acts as the execution
+        layer of the Planner-Executor pattern.
+        """
 
         state.current_step = step
 
@@ -35,7 +48,7 @@ class StepExecutorService:
             state.observation.extend(
                 result
             )
-        elif step.upper() == "PDF":
+        elif step.upper() == "SEARCH PDF":
 
             result = (
                 PdfTool.execute(
@@ -48,5 +61,10 @@ class StepExecutorService:
             )
 
         state.completed_steps.append(step)
+
+        print(
+            f"\nCOMPLETED STEPS: "
+            f"{state.completed_steps}"
+        )
 
         return state

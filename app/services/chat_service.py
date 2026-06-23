@@ -21,22 +21,6 @@ class ChatService:
                 f"{chat.content}\n"
             )
 
-        prompt = f"""
-        You are a conversational assistant.
-
-        You MUST use the conversation history when answering.
-
-        If the user's name, preferences, or facts are mentioned in the conversation history, use them.
-
-        Conversation History:
-        {history_text}
-
-        Current User Message:
-        {message}
-
-        Answer the current user message using the conversation history.
-        """
-
         memory_response = MemoryExtractorService.extract_memory(
             message
         )

@@ -7,27 +7,42 @@ class PlannerService:
     def create_plan(
             question: str
     ):
-
         prompt = f"""
-You are an AI planner.
+        You are an AI planner.
 
-Question:
-{question}
+        Question:
+        {question}
 
-Create a short execution plan.
+        Your responsibility is to create an execution plan
+        for answering the user's question.
 
-Available tools:
+        Available tools:
 
-- memory
-- pdf
+        - memory
+        - pdf
 
-Return ONLY the plan.
+        Planning Rules:
 
-Example:
+        1. Use Search Memory for personal facts,
+           preferences, profile information,
+           and stored memories.
 
-1. Search Memory
-2. Generate Answer
-"""
+        2. Use Search PDF for document-based
+           questions.
+
+        3. Use both tools if both sources
+           may contain useful information.
+
+        4. Always finish with:
+           Generate Answer
+
+        Return ONLY the plan.
+
+        Example:
+
+        1. Search Memory
+        2. Generate Answer
+        """
 
         return GeminiService.generate(
             prompt

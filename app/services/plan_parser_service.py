@@ -4,7 +4,6 @@ class PlanParserService:
     def parse(
             plan: str
     ):
-
         """
         Converts planner output into
         executable steps.
@@ -35,7 +34,11 @@ class PlanParserService:
             if not line:
                 continue
 
-            if "." in line:
+            if (
+                    line[0].isdigit()
+                    and
+                    "." in line
+            ):
 
                 step = (
                     line.split(
