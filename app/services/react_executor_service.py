@@ -5,7 +5,10 @@ from app.services.reflection_service import ReflectionService
 from app.services.retry_prompt_service import RetryPromptService
 from app.tools.memory_tool import MemoryTool
 from app.tools.pdf_tool import PdfTool
-
+from app.models.agent_state import AgentState
+from app.services.planner_service import PlannerService
+from app.services.plan_parser_service import PlanParserService
+from app.services.step_executor_service import StepExecutorService
 
 class ReActExecutorService:
 
@@ -19,34 +22,75 @@ class ReActExecutorService:
 
         Responsibilities
         ----------------
-        1. Ask the agent to think.
-        2. Select a tool.
-        3. Execute the tool.
-        4. Evaluate the observation.
-        5. Retry if information is insufficient.
-        6. Generate final answer.
+        1. Create execution plan.
+        2. Ask the agent to think.
+        3. Select a tool.
+        4. Execute the tool.
+        5. Evaluate the observation.
+        6. Retry if information is insufficient.
+        7. Generate final answer.
 
         This service acts as the orchestrator
-        for the complete ReAct workflow.
+        for the complete Planner + ReAct workflow.
         """
 
-        # Maximum number of retries.
-        # Retry 0 = First attempt
-        # Retry 1 = Second attempt
+        # Maximum retries allowed.
         max_retries = 1
 
-        # Tracks current attempt.
-        retry_count = 0
+        # Agent state stores all runtime data
+        # for the current execution.
+        state = AgentState(
+            question=question
+        )
 
-        # Final answer returned to UI.
-        answer = None
+        # ==================================================
+        # PLANNER
+        #
+        # Planner creates a high-level execution strategy
+        # before the agent starts reasoning.
+        #
+        # Example:
+        #
+        # 1. Search Memory
+        # 2. Search PDF
+        # 3. Generate Answer
+        # ==================================================
 
-        # Initialize variables outside loop
-        # so they remain available after execution.
-        react_response = None
-        action = None
-        observation = []
-        reflection_result = None
+        state.plan = (
+            PlannerService.create_plan(
+                state.question
+            )
+        )
+
+        print("\nPLAN")
+        print(state.plan)
+
+        plan_steps = (
+            PlanParserService.parse(
+                state.plan
+            )
+        )
+
+        print("\nPLAN STEPS")
+
+        for step in plan_steps:
+            print(step)
+
+        for step in plan_steps:
+
+            if (
+                    step.upper()
+                    ==
+                    "GENERATE ANSWER"
+            ):
+                continue
+
+            state = (
+                StepExecutorService.execute_step(
+                    state,
+                    step
+                )
+            )
 
         # ==================================================
         # AGENT LOOP
@@ -56,10 +100,10 @@ class ReActExecutorService:
         # 2. Retry limit is reached
         # ==================================================
 
-        while retry_count <= max_retries:
+        while state.retry_count <= max_retries:
 
             print(
-                f"\nRETRY COUNT: {retry_count}"
+                f"\nRETRY COUNT: {state.retry_count}"
             )
 
             # ==================================================
@@ -71,18 +115,18 @@ class ReActExecutorService:
             # containing previous failures.
             # ==================================================
 
-            if retry_count == 0:
+            if state.retry_count == 0:
 
-                question_to_use = question
+                question_to_use = state.question
 
             else:
 
                 question_to_use = (
                     RetryPromptService.build(
-                        question=question,
-                        action=action,
-                        observation=observation,
-                        reflection=reflection_result
+                        question=state.question,
+                        action=state.action,
+                        observation=state.observation,
+                        reflection=state.reflection
                     )
                 )
 
@@ -92,14 +136,14 @@ class ReActExecutorService:
             # Agent decides which tool should be used.
             # ==================================================
 
-            react_response = (
+            state.thought = (
                 ReActAgentService.think(
                     question_to_use
                 )
             )
 
             print("\nTHOUGHT + ACTION")
-            print(react_response)
+            print(state.thought)
 
             # ==================================================
             # ACTION EXTRACTION
@@ -107,14 +151,14 @@ class ReActExecutorService:
             # Parse selected tool from agent output.
             # ==================================================
 
-            action = (
+            state.action = (
                 ReActParserService.extract_action(
-                    react_response
+                    state.thought
                 )
             )
 
             print(
-                f"\nACTION SELECTED: {action}"
+                f"\nACTION SELECTED: {state.action}"
             )
 
             # ==================================================
@@ -123,25 +167,25 @@ class ReActExecutorService:
             # Execute the selected tool.
             # ==================================================
 
-            if action == "memory":
+            if state.action == "memory":
 
-                observation = (
+                state.observation = (
                     MemoryTool.execute(
-                        question
+                        state.question
                     )
                 )
 
-            elif action == "pdf":
+            elif state.action == "pdf":
 
-                observation = (
+                state.observation = (
                     PdfTool.execute(
-                        question
+                        state.question
                     )
                 )
 
             else:
 
-                observation = []
+                state.observation = []
 
             # ==================================================
             # OBSERVATION
@@ -151,7 +195,7 @@ class ReActExecutorService:
 
             print("\nOBSERVATION")
 
-            for item in observation:
+            for item in state.observation:
                 print(item)
 
             # ==================================================
@@ -161,15 +205,15 @@ class ReActExecutorService:
             # contains enough information.
             # ==================================================
 
-            reflection_result = (
+            state.reflection = (
                 ReflectionService.evaluate(
-                    question=question,
-                    observation=observation
+                    question=state.question,
+                    observation=state.observation
                 )
             )
 
             print("\nREFLECTION")
-            print(reflection_result)
+            print(state.reflection)
 
             # ==================================================
             # SUCCESS PATH
@@ -179,14 +223,14 @@ class ReActExecutorService:
             # ==================================================
 
             if (
-                    reflection_result
+                    state.reflection
                     and
-                    reflection_result.strip().upper() == "ENOUGH"
+                    state.reflection.strip().upper() == "ENOUGH"
             ):
-                answer = (
+                state.answer = (
                     ReActAnswerService.generate_answer(
-                        question=question,
-                        observation=observation
+                        question=state.question,
+                        observation=state.observation
                     )
                 )
 
@@ -205,7 +249,7 @@ class ReActExecutorService:
                 "\nINSUFFICIENT INFORMATION. RETRYING..."
             )
 
-            retry_count += 1
+            state.retry_count += 1
 
         # ==================================================
         # FALLBACK RESPONSE
@@ -213,19 +257,22 @@ class ReActExecutorService:
         # Executed when all retries fail.
         # ==================================================
 
-        if not answer:
-            answer = (
+        if not state.answer:
+            state.answer = (
                 "I could not find enough information "
                 "after retrying."
             )
 
         print("\nFINAL ANSWER")
-        print(answer)
+        print(state.answer)
+
+        #The Below Block can be returned with single line return state
 
         return {
-            "thought": react_response,
-            "action": action,
-            "observation": observation,
-            "reflection": reflection_result,
-            "answer": answer
+            "plan": state.plan,
+            "thought": state.thought,
+            "action": state.action,
+            "observation": state.observation,
+            "reflection": state.reflection,
+            "answer": state.answer
         }

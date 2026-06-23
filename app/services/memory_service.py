@@ -8,7 +8,7 @@ class MemoryService:
             memory_text: str
     ):
 
-        VectorDBService.collection.add(
+        VectorDBService.memory_collection.add(
             ids=[memory_id],
             documents=[memory_text],
             metadatas=[
@@ -29,7 +29,7 @@ class MemoryService:
     ):
 
         results = (
-            VectorDBService.collection.query(
+            VectorDBService.memory_collection.query(
                 query_texts = [query],
                 n_results=top_k,
                 where={

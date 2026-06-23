@@ -1,17 +1,35 @@
+from pathlib import Path
 import chromadb
 
 from app.core.logger import get_logger
 
 logger = get_logger(__name__)
+BASE_DIR = (
+    Path(__file__)
+    .resolve()
+    .parent
+    .parent
+    .parent
+)
+
+DB_PATH = BASE_DIR / "chroma_db"
 
 class VectorDBService:
 
     client = chromadb.PersistentClient(
-        path="./chroma_db"
+        path=str(DB_PATH)
     )
 
-    collection = client.get_or_create_collection(
-        name="chat_knowledge_base"
+    memory_collection = (
+        client.get_or_create_collection(
+            name="memory_collection"
+        )
+    )
+
+    pdf_collection = (
+        client.get_or_create_collection(
+            name="pdf_collection"
+        )
     )
 
     @staticmethod
@@ -20,7 +38,7 @@ class VectorDBService:
             top_k: int = 5
     ):
 
-        results = VectorDBService.collection.query(
+        results = VectorDBService.pdf_collection.query(
             query_texts=[query],
             n_results=top_k
         )
@@ -38,7 +56,7 @@ class VectorDBService:
                 f"pdf_chunk_{index}"
             )
 
-        VectorDBService.collection.add(
+        VectorDBService.pdf_collection.add(
             documents=chunks,
             ids=ids
         )

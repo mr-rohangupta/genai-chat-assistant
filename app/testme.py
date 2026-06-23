@@ -1,12 +1,59 @@
-import google.generativeai as genai
+from app.tools.memory_tool import MemoryTool
 
-from app.core.config import settings
 
-genai.configure(
-    api_key=settings.GOOGLE_API_KEY
-)
+def main():
 
-for model in genai.list_models():
+    print("=" * 60)
+    print("MEMORY TOOL TEST")
+    print("=" * 60)
 
-    if "generateContent" in model.supported_generation_methods:
-        print(model.name)
+    question = input(
+        "\nEnter Question: "
+    )
+
+    print(
+        f"\nQuestion: {question}"
+    )
+
+    print(
+        "\nExecuting Memory Tool..."
+    )
+
+    result = (
+        MemoryTool.execute(
+            question
+        )
+    )
+
+    print("\nRESULT TYPE")
+    print(type(result))
+
+    print(
+        f"\nTotal Results: {len(result)}"
+    )
+
+    print("\nMEMORY RESULTS")
+    print("-" * 60)
+
+    if not result:
+
+        print(
+            "NO RESULTS FOUND"
+        )
+
+    else:
+
+        for index, item in enumerate(
+                result,
+                start=1
+        ):
+
+            print(
+                f"{index}. {item}"
+            )
+
+    print("\nDONE")
+
+
+if __name__ == "__main__":
+    main()
