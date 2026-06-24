@@ -8,41 +8,74 @@ class PlannerService:
             question: str
     ):
         prompt = f"""
-        You are an AI planner.
+You are an AI planner.
 
-        Question:
-        {question}
+Question:
+{question}
 
-        Your responsibility is to create an execution plan
-        for answering the user's question.
+Your responsibility is to create an execution plan
+for answering the user's question.
 
-        Available tools:
+Available Tools:
 
-        - memory
-        - pdf
+- memory
+- pdf
 
-        Planning Rules:
+Planning Rules:
 
-        1. Use Search Memory for personal facts,
-           preferences, profile information,
-           and stored memories.
+1. First determine the question type.
 
-        2. Use Search PDF for document-based
-           questions.
+Question Types:
 
-        3. Use both tools if both sources
-           may contain useful information.
+A. Memory Question
+   - User facts
+   - User preferences
+   - User profile information
+   - Stored memories
 
-        4. Always finish with:
-           Generate Answer
+B. PDF Question
+   - Uploaded documents
+   - PDF content
+   - Document summaries
+   - Information contained in PDFs
 
-        Return ONLY the plan.
+C. Hybrid Question
+   - Requires both Memory and PDF data
 
-        Example:
+2. Create the plan based on the question type.
 
-        1. Search Memory
-        2. Generate Answer
-        """
+3. Always finish with:
+   Generate Answer
+
+Allowed Steps:
+
+- Search Memory
+- Search PDF
+- Generate Answer
+
+You MUST use ONLY the allowed steps.
+
+Do not invent new steps.
+
+Do not add explanations.
+
+Return ONLY the numbered plan.
+
+Examples:
+
+Memory Question:
+1. Search Memory
+2. Generate Answer
+
+PDF Question:
+1. Search PDF
+2. Generate Answer
+
+Hybrid Question:
+1. Search Memory
+2. Search PDF
+3. Generate Answer
+"""
 
         return GeminiService.generate(
             prompt
