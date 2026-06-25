@@ -31,3 +31,6 @@ class AgentState(BaseModel):
 
     # Final answer generated for user.
     answer: str | None = None
+
+    # Number of replanning attempts performed.
+    replan_count: int = 0
