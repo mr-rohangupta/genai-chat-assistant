@@ -86,6 +86,54 @@ class PlannerExecutorService:
         return state
 
     @staticmethod
+    def _replan(
+            state: AgentState
+    ):
+        """
+        Creates a new execution plan when the
+        previous plan failed to gather enough
+        information.
+
+        Responsibilities
+        ----------------
+        1. Increment replanning attempts.
+        2. Generate a new execution plan.
+        3. Execute the new plan.
+        4. Re-evaluate the new observations.
+        """
+
+        state.replan_count += 1
+
+        print(
+            f"\nREPLAN ATTEMPT: "
+            f"{state.replan_count}"
+        )
+
+        state.plan = (
+            ReplanService.create_replan(
+                question=state.question,
+                observation=state.observation
+            )
+        )
+
+        print("\nNEW PLAN")
+        print(state.plan)
+
+        state = (
+            PlannerExecutorService._execute_plan(
+                state
+            )
+        )
+
+        state = (
+            PlannerExecutorService._evaluate_reflection(
+                state
+            )
+        )
+
+        return state
+
+    @staticmethod
     def execute(
             question: str
     ):
@@ -132,6 +180,9 @@ class PlannerExecutorService:
         state = AgentState(
             question=question
         )
+
+        # Maximum replanning attempts.
+        max_replans = 1
 
         # ==================================================
         # PLANNER PHASE
@@ -209,6 +260,18 @@ class PlannerExecutorService:
         # Generate the final answer only when
         # sufficient information is available.
         # ==================================================
+
+        while (
+                state.reflection.strip().upper()
+                != "ENOUGH"
+                and
+                state.replan_count < max_replans
+        ):
+            state = (
+                PlannerExecutorService._replan(
+                    state
+                )
+            )
 
         if (
                 state.reflection
